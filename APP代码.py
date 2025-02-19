@@ -67,23 +67,21 @@ if st.button("Predict"):
 
     st.write(advice)
 
-    # Compute SHAP values
-    explainer = shap.TreeExplainer(model)
-    shap_explanation = explainer(features_df)
+# Compute SHAP values
+explainer = shap.TreeExplainer(model)
+shap_explanation = explainer.shap_values(features_df)
 
-    # Access the SHAP values for the predicted class
-    shap_value_for_instance = shap_explanation[predicted_class][0]
+# Access the SHAP values for the predicted class
+shap_value_for_instance = shap_explanation[predicted_class]
 
-    # Print the structure of the SHAP value for debugging
-    print("SHAP value for instance:", shap_value_for_instance)
+# Ensure that the SHAP value object contains the base_values field
+print("Base values:", shap_value_for_instance.base_values)
+print("Shap values:", shap_value_for_instance.values)
 
-    # Ensure that the SHAP value object contains the base_values field
-    print("Base values:", shap_value_for_instance.base_values)
-    print("Shap values:", shap_value_for_instance.values)
+# If valid, display SHAP waterfall plot
+plt.figure(figsize=(10, 5), dpi=1200)
+shap.waterfall_plot(shap_value_for_instance, show=False)
+plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
+st.image("shap_plot.png")
 
-    # If valid, display SHAP waterfall plot
-    plt.figure(figsize=(10, 5), dpi=1200)
-    shap.plots.waterfall(shap_value_for_instance, show=False, max_display=13)
-    plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
-    st.image("shap_plot.png")
 
