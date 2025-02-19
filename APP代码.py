@@ -83,3 +83,4 @@ if st.button("Predict"):
     shap.plots.waterfall(shap_value_for_instance, show=False, max_display=13)
     plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_plot.png")
+
