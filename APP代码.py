@@ -67,12 +67,21 @@ if st.button("Predict"):
 
     st.write(advice)
 
-    # Compute SHAP values
-    explainer = shap.TreeExplainer(model)
-    shap_values_Explanation = explainer.shap_values(features_df)
+# 计算 SHAP 值
+explainer = shap.TreeExplainer(model)
+shap_values_Explanation = explainer.shap_values(features_df)
 
-    # Display SHAP plot for predicted class
-    plt.figure(figsize=(10, 5), dpi=1200)
-    shap.plots.waterfall(shap_values_Explanation[1][0], show=False, max_display=13)
-    plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
-    st.image("shap_plot.png")
+# 打印 SHAP 值结构以便调试
+print(shap_values_Explanation)
+
+# 根据预测类别显示 SHAP 图（1 表示糖尿病，0 表示没有糖尿病）
+if predicted_class == 1:
+    shap_values_class = shap_values_Explanation[1][0]
+else:
+    shap_values_class = shap_values_Explanation[0][0]
+
+# 显示 SHAP waterfall 图
+plt.figure(figsize=(10, 5), dpi=1200)
+shap.plots.waterfall(shap_values_class, show=False, max_display=13)
+plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
+st.image("shap_plot.png")
