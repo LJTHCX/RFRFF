@@ -67,18 +67,27 @@ if st.button("Predict"):
 
     st.write(advice)
 
-    # Compute SHAP values
+    # Calculate SHAP values
     explainer = shap.TreeExplainer(model)
-    shap_explanation = explainer.shap_values(features_df)
+    shap_values_Explanation = explainer.shap_values(features_df)
 
-    # Access the SHAP values for the predicted class
-    shap_value_for_instance = shap_explanation[predicted_class]
+    # Display SHAP waterfall plot only for the predicted class
+    # Create Explanation object for the predicted class
+    shap_values_for_instance = shap_values_Explanation[predicted_class]
+
+    # Create SHAP explanation object for the prediction
+    shap_values_explanation = shap.Explanation(
+        values=shap_values_for_instance,
+        base_values=explainer.expected_value[predicted_class],
+        data=features_df,
+        feature_names=feature_names
+    )
 
     # Directly show SHAP values
-    st.write(f"SHAP values: {shap_value_for_instance}")
+    st.write(f"SHAP values: {shap_values_for_instance}")
 
     # Display SHAP waterfall plot
     plt.figure(figsize=(10, 5), dpi=1200)
-    shap.plots.waterfall(shap_value_for_instance, show=False, max_display=13)
+    shap.plots.waterfall(shap_values_explanation, show=False, max_display=13)
     plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_plot.png")
