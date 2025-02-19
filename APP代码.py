@@ -71,25 +71,26 @@ if st.button("Predict"):
     explainer = shap.TreeExplainer(model)
     shap_values_Explanation = explainer.shap_values(features_df)
 
-    # Ensure we are accessing the SHAP values for the predicted class
-    if isinstance(shap_values_Explanation, list):  # Multi-class model
-        shap_values_for_instance = shap_values_Explanation[predicted_class][0]  # Select SHAP values for the predicted class and first instance
+    # Handle multi-class models: Extract SHAP values for the predicted class
+    if isinstance(shap_values_Explanation, list):  # For multi-class models
+        shap_values_for_instance = shap_values_Explanation[predicted_class][0]  # Select the predicted class and first instance
     else:
-        shap_values_for_instance = shap_values_Explanation[0]  # Single class model
+        shap_values_for_instance = shap_values_Explanation[0]  # For binary classification models
 
-    # Create SHAP explanation object for the predicted class
+    # Ensure only a single explanation is passed for the waterfall plot
     shap_values_explanation = shap.Explanation(
         values=shap_values_for_instance,
         base_values=explainer.expected_value[predicted_class],
-        data=features_df.values[0],  # Pass the actual input values here (first row for single instance)
+        data=features_df.values[0],  # Pass the first instance's values
         feature_names=feature_names
     )
 
     # Directly show SHAP values
     st.write(f"SHAP values: {shap_values_for_instance}")
 
-    # Display SHAP waterfall plot
+    # Display SHAP waterfall plot for the predicted class
     plt.figure(figsize=(10, 5), dpi=1200)
     shap.plots.waterfall(shap_values_explanation, show=False, max_display=13)
     plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_plot.png")
+
