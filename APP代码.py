@@ -52,18 +52,6 @@ if st.button("Predict"):
     # Generate advice based on the prediction
     probability = predicted_proba[predicted_class] * 100
 
-  if st.button("Predict"):
-    # Make prediction using the model
-    predicted_class = model.predict(features_df)[0]
-    predicted_proba = model.predict_proba(features_df)[0]
-
-    # Display the prediction results
-    st.write(f"**Predicted Class (0=No Diabetes, 1=Diabetes):** {predicted_class}")
-    st.write(f"**Predicted Probability:** {predicted_proba}")
-
-    # Generate advice based on the prediction
-    probability = predicted_proba[predicted_class] * 100
-
     if predicted_class == 0:
         advice = (
             f"Based on our model's prediction, you are unlikely to have diabetes."
