@@ -78,7 +78,7 @@ if st.button("Predict"):
     shap_values_explanation = shap.Explanation(
         values=shap_values_for_instance,
         base_values=explainer.expected_value[predicted_class],
-        data=features_df,
+        data=features_df.values,  # Pass the actual input values here
         feature_names=feature_names
     )
 
@@ -90,5 +90,4 @@ if st.button("Predict"):
     shap.plots.waterfall(shap_values_explanation, show=False, max_display=13)
     plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_plot.png")
-
 
