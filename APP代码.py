@@ -71,9 +71,9 @@ if st.button("Predict"):
     explainer = shap.TreeExplainer(model)
     shap_values_Explanation = explainer.shap_values(features_df)
 
-    # Check if we are dealing with a multi-class model and get the SHAP values for the predicted class
-    if isinstance(shap_values_Explanation, list):  # In case of multi-class classification
-        shap_values_for_instance = shap_values_Explanation[predicted_class][0]  # Select the first instance for the predicted class
+    # Ensure we are accessing the SHAP values for the predicted class
+    if isinstance(shap_values_Explanation, list):  # Multi-class model
+        shap_values_for_instance = shap_values_Explanation[predicted_class][0]  # Select SHAP values for the predicted class and first instance
     else:
         shap_values_for_instance = shap_values_Explanation[0]  # Single class model
 
