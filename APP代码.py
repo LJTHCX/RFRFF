@@ -71,8 +71,11 @@ if st.button("Predict"):
     explainer = shap.TreeExplainer(model)
     shap_values_Explanation = explainer.shap_values(features_df)
 
-    # Extract SHAP values for the predicted class
-    shap_values_for_instance = shap_values_Explanation[predicted_class][0]  # Select the first instance
+    # Check if we are dealing with a multi-class model and get the SHAP values for the predicted class
+    if isinstance(shap_values_Explanation, list):  # In case of multi-class classification
+        shap_values_for_instance = shap_values_Explanation[predicted_class][0]  # Select the first instance for the predicted class
+    else:
+        shap_values_for_instance = shap_values_Explanation[0]  # Single class model
 
     # Create SHAP explanation object for the predicted class
     shap_values_explanation = shap.Explanation(
@@ -90,4 +93,3 @@ if st.button("Predict"):
     shap.plots.waterfall(shap_values_explanation, show=False, max_display=13)
     plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_plot.png")
-
