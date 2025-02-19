@@ -67,19 +67,16 @@ if st.button("Predict"):
 
     st.write(advice)
 
-# Compute SHAP values
-explainer = shap.TreeExplainer(model)
-shap_values_Explanation = explainer.shap_values(features_df)
+    # Compute SHAP values using the __call__ method, which returns Explanation objects.
+    explainer = shap.TreeExplainer(model)
+    shap_explanation = explainer(features_df)
+    # 对于分类模型，shap_explanation 返回的是一个列表，根据预测类别选择对应的 Explanation 对象
+    # 然后再取第一条数据（因为这里只有一条输入数据）
+    shap_value_for_instance = shap_explanation[predicted_class][0]
 
-# Print SHAP values structure for debugging
-print(shap_values_Explanation)
-
-# SHAP values are returned in a list, we need to access the SHAP values for the predicted class
-shap_values_class = shap_values_Explanation[predicted_class][0]
-
-# Display SHAP waterfall plot
-plt.figure(figsize=(10, 5), dpi=1200)
-shap.plots.waterfall(shap_values_class, show=False, max_display=13)
-plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
-st.image("shap_plot.png")
+    # Display SHAP waterfall plot
+    plt.figure(figsize=(10, 5), dpi=1200)
+    shap.plots.waterfall(shap_value_for_instance, show=False, max_display=13)
+    plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
+    st.image("shap_plot.png")
 
