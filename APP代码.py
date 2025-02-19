@@ -52,6 +52,18 @@ if st.button("Predict"):
     # Generate advice based on the prediction
     probability = predicted_proba[predicted_class] * 100
 
+  if st.button("Predict"):
+    # Make prediction using the model
+    predicted_class = model.predict(features_df)[0]
+    predicted_proba = model.predict_proba(features_df)[0]
+
+    # Display the prediction results
+    st.write(f"**Predicted Class (0=No Diabetes, 1=Diabetes):** {predicted_class}")
+    st.write(f"**Predicted Probability:** {predicted_proba}")
+
+    # Generate advice based on the prediction
+    probability = predicted_proba[predicted_class] * 100
+
     if predicted_class == 0:
         advice = (
             f"Based on our model's prediction, you are unlikely to have diabetes."
@@ -67,21 +79,19 @@ if st.button("Predict"):
 
     st.write(advice)
 
-# Compute SHAP values
-explainer = shap.TreeExplainer(model)
-shap_explanation = explainer.shap_values(features_df)
+    # Compute SHAP values
+    explainer = shap.TreeExplainer(model)
+    shap_explanation = explainer.shap_values(features_df)
 
-# Access the SHAP values for the predicted class
-shap_value_for_instance = shap_explanation[predicted_class]
+    # Access the SHAP values for the predicted class
+    shap_value_for_instance = shap_explanation[predicted_class]
 
-# Ensure that the SHAP value object contains the base_values field
-print("Base values:", shap_value_for_instance.base_values)
-print("Shap values:", shap_value_for_instance.values)
+    # Ensure that the SHAP value object contains the base_values field
+    st.write(f"Base values: {shap_value_for_instance.base_values}")
+    st.write(f"Shap values: {shap_value_for_instance.values}")
 
-# If valid, display SHAP waterfall plot
-plt.figure(figsize=(10, 5), dpi=1200)
-shap.waterfall_plot(shap_value_for_instance, show=False)
-plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
-st.image("shap_plot.png")
-
-
+    # If valid, display SHAP waterfall plot
+    plt.figure(figsize=(10, 5), dpi=1200)
+    shap.plots.waterfall(shap_value_for_instance, show=False, max_display=13)
+    plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
+    st.image("shap_plot.png")
