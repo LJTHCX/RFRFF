@@ -74,13 +74,11 @@ if st.button("Predict"):
     # Access the SHAP values for the predicted class
     shap_value_for_instance = shap_explanation[predicted_class]
 
-    # Ensure that the SHAP value object contains the base_values field
-    st.write(f"Base values: {shap_value_for_instance.base_values}")
-    st.write(f"Shap values: {shap_value_for_instance.values}")
+    # Directly show SHAP values
+    st.write(f"SHAP values: {shap_value_for_instance}")
 
-    # If valid, display SHAP waterfall plot
+    # Display SHAP waterfall plot
     plt.figure(figsize=(10, 5), dpi=1200)
     shap.plots.waterfall(shap_value_for_instance, show=False, max_display=13)
     plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_plot.png")
-
