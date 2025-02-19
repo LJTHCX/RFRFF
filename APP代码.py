@@ -81,7 +81,7 @@ if st.button("Predict"):
     shap_values_explanation = shap.Explanation(
         values=shap_values_for_instance,
         base_values=explainer.expected_value[predicted_class],
-        data=features_df.values,  # Pass the actual input values here
+        data=features_df.values[0],  # Pass the actual input values here (first row for single instance)
         feature_names=feature_names
     )
 
