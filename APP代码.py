@@ -78,8 +78,8 @@ if st.button("Predict"):
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
 
-    # 根据概率绘制SHAP值图像
-    # SHAP值力图，使用所有类别的概率来绘制
+    # 对于分类任务，使用所有类别的概率来绘制SHAP值图像
+    # SHAP值力图，基于每个类别的概率
     fig, ax = plt.subplots(figsize=(10, 6))
     shap.summary_plot(shap_values, pd.DataFrame([feature_values], columns=feature_ranges.keys()), plot_type="bar", show=False)
     plt.title(f"SHAP Summary for Diabetes Prediction")
