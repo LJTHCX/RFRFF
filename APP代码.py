@@ -82,18 +82,16 @@ if st.button("Predict"):
     class_index = predicted_class  # 当前预测类别
     shap_fig = shap.force_plot(
         explainer.expected_value[class_index],
-        shap_values[:,:,class_index],
+        shap_values[class_index][0],
         pd.DataFrame([feature_values], columns=feature_ranges.keys()),
         matplotlib=True,
     )
-    # 保存并显示 SHAP 图
+    # 保存并显示 SHAP 力图
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_force_plot.png")
 
-
-
     # 显示 SHAP 水波图，仅显示预测类别的图
     plt.figure(figsize=(10, 5), dpi=1200)
-    shap.plots.waterfall(shap_values[predicted_class][0], show=False, max_display=13)  # 使用预测类别索引
+    shap.plots.waterfall(shap_values[class_index][0], show=False, max_display=13)  # 使用预测类别索引
     plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_plot.png")
