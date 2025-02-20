@@ -34,52 +34,65 @@ ffpg = st.number_input("FFPG:", min_value=0.0, max_value=20.0, value=5.0)
 smoking = st.selectbox("Smoking:", options=[0, 1])
 drinking = st.selectbox("Drinking:", options=[0, 1])
 
-# Collect input values into a list
-feature_values = [age, bmi, sbp, dbp, fpg, chol, tri, hdl, ldl, alt, bun, ccr, ffpg, smoking, drinking]
+# Streamlit 界面
+st.title("Prediction Model with SHAP Visualization")
 
-# Convert the input feature values into a DataFrame
-features_df = pd.DataFrame([feature_values], columns=feature_names)
+# 动态生成输入项
+st.header("Enter the following feature values:")
+feature_values = []
+for feature, properties in feature_ranges.items():
+    if properties["type"] == "numerical":
+        value = st.number_input(
+            label=f"{feature} ({properties['min']} - {properties['max']})",
+            min_value=float(properties["min"]),
+            max_value=float(properties["max"]),
+            value=float(properties["default"]),
+        )
+    elif properties["type"] == "categorical":
+        value = st.selectbox(
+            label=f"{feature} (Select a value)",
+            options=properties["options"],
+        )
+    feature_values.append(value)
 
+# 转换为模型输入格式
+features = np.array([feature_values])
+
+# 预测与 SHAP 可视化
 if st.button("Predict"):
-    # Make prediction using the model
-    predicted_class = model.predict(features_df)[0]
-    predicted_proba = model.predict_proba(features_df)[0]
+    # 模型预测
+    predicted_class = model.predict(features)[0]
+    predicted_proba = model.predict_proba(features)[0]
 
-    # Display the prediction results
-    st.write(f"**Predicted Class (0=No Diabetes, 1=Diabetes):** {predicted_class}")
-    st.write(f"**Predicted Probability:** {predicted_proba}")
-
-    # Generate advice based on the prediction
+    # 提取预测的类别概率
     probability = predicted_proba[predicted_class] * 100
 
-    if predicted_class == 0:
-        advice = (
-            f"Based on our model's prediction, you are unlikely to have diabetes."
-            f" The probability of you not having diabetes is {probability:.1f}%. "
-            "It is recommended to maintain a healthy lifestyle and continue reducing risk factors."
-        )
-    else:
-        advice = (
-            f"Based on our model's prediction, you may have diabetes."
-            f" The probability of you having diabetes is {probability:.1f}%. "
-            "It is recommended to consult a doctor for further diagnosis and treatment."
-        )
-
-    st.write(advice)
-
-    # Compute SHAP values
-    explainer = shap.TreeExplainer(model)
-    shap_values_Explanation = explainer.shap_values(features_df)
-
-    # Display SHAP force plot for predicted class 0
-    plt.figure(figsize=(10, 5), dpi=1200)
-    shap.force_plot(
-        explainer.expected_value[0],  # Use expected value for class 0
-        shap_values_Explanation[0],  # SHAP values for class 0
-        features_df,
-        matplotlib=True
+    # 显示预测结果，使用 Matplotlib 渲染指定字体
+    text = f"Based on feature values, predicted possibility of AKI is {probability:.2f}%"
+    fig, ax = plt.subplots(figsize=(8, 1))
+    ax.text(
+        0.5, 0.5, text,
+        fontsize=16,
+        ha='center', va='center',
+        fontname='Times New Roman',
+        transform=ax.transAxes
     )
-    plt.savefig("shap_force_plot_class_0.png", bbox_inches='tight', dpi=1200)
-    st.image("shap_force_plot_class_0.png")
+    ax.axis('off')
+    plt.savefig("prediction_text.png", bbox_inches='tight', dpi=300)
+    st.image("prediction_text.png")
 
+    # 计算 SHAP 值
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
 
+    # 生成 SHAP 力图
+    class_index = predicted_class  # 当前预测类别
+    shap_fig = shap.force_plot(
+        explainer.expected_value[class_index],
+        shap_values[:,:,class_index],
+        pd.DataFrame([feature_values], columns=feature_ranges.keys()),
+        matplotlib=True,
+    )
+    # 保存并显示 SHAP 图
+    plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
+    st.image("shap_force_plot.png")
