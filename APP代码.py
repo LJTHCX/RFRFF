@@ -49,13 +49,13 @@ for feature, properties in feature_ranges.items():
     feature_values.append(value)
 
 # 转换为模型输入格式
-features_df = pd.DataFrame([feature_values], columns=feature_ranges.keys())
+features = np.array([feature_values])
 
 # 预测与 SHAP 可视化
 if st.button("Predict"):
     # 模型预测
-    predicted_class = model.predict(features_df)[0]
-    predicted_proba = model.predict_proba(features_df)[0]
+    predicted_class = model.predict(features)[0]
+    predicted_proba = model.predict_proba(features)[0]
 
     # 提取预测的类别概率
     probability = predicted_proba[predicted_class] * 100
@@ -76,29 +76,16 @@ if st.button("Predict"):
 
     # 计算 SHAP 值
     explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(features_df)
-
-    # 获取预测类别的 SHAP 值
-    shap_values_class = shap_values[predicted_class]  # 获取预测类别的 SHAP 值
+    shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
 
     # 生成 SHAP 力图
+    class_index = predicted_class  # 当前预测类别
     shap_fig = shap.force_plot(
-        explainer.expected_value[predicted_class],
-        shap_values_class[0],  # 获取第一个样本的 SHAP 值
-        features_df,
+        explainer.expected_value[class_index],
+        shap_values[:,:,class_index],
+        pd.DataFrame([feature_values], columns=feature_ranges.keys()),
         matplotlib=True,
     )
-    # 保存并显示 SHAP 力图
+    # 保存并显示 SHAP 图
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_force_plot.png")
-
-    # 根据预测类别绘制 SHAP 水波图
-    plt.figure(figsize=(10, 5), dpi=1200)
-    if predicted_class == 0:
-        shap.plots.waterfall(shap_values_class[0], show=False, max_display=15)  # 类别0的图
-        plt.savefig("shap_plot_class_0.png", bbox_inches='tight', dpi=1200)
-        st.image("shap_plot_class_0.png")
-    elif predicted_class == 1:
-        shap.plots.waterfall(shap_values_class[0], show=False, max_display=15)  # 类别1的图
-        plt.savefig("shap_plot_class_1.png", bbox_inches='tight', dpi=1200)
-        st.image("shap_plot_class_1.png")
