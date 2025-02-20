@@ -75,7 +75,7 @@ if st.button("Predict"):
     plt.figure(figsize=(10, 5), dpi=1200)
     shap.force_plot(
         explainer.expected_value[0],  # Use expected value for class 0
-        shap_values_Explanation[0][0],  # SHAP values for class 0
+        shap_values_Explanation[0],  # SHAP values for class 0
         features_df,
         matplotlib=True
     )
