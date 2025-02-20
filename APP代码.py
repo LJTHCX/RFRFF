@@ -5,88 +5,92 @@ import pandas as pd
 import shap
 import matplotlib.pyplot as plt
 
-# 加载保存的随机森林模型
+# Load the diabetes prediction model
 model = joblib.load('RF.pkl')
 
-# 特征范围定义（根据提供的特征范围和数据类型）
-feature_ranges = {
-    "Age": {"type": "numerical", "min": 18, "max": 100, "default": 30},
-    "BMI": {"type": "numerical", "min": 10.0, "max": 50.0, "default": 24.0},
-    "SBP": {"type": "numerical", "min": 50, "max": 200, "default": 120},
-    "DBP": {"type": "numerical", "min": 30, "max": 120, "default": 80},
-    "FPG": {"type": "numerical", "min": 0.0, "max": 20.0, "default": 5.0},
-    "Chol": {"type": "numerical", "min": 0.0, "max": 10.0, "default": 4.5},
-    "Tri": {"type": "numerical", "min": 0.0, "max": 10.0, "default": 1.0},
-    "HDL": {"type": "numerical", "min": 0.0, "max": 10.0, "default": 1.5},
-    "LDL": {"type": "numerical", "min": 0.0, "max": 10.0, "default": 3.0},
-    "ALT": {"type": "numerical", "min": 0.0, "max": 100.0, "default": 30.0},
-    "BUN": {"type": "numerical", "min": 0.0, "max": 100.0, "default": 20.0},
-    "CCR": {"type": "numerical", "min": 0.0, "max": 100.0, "default": 50.0},
-    "FFPG": {"type": "numerical", "min": 0.0, "max": 20.0, "default": 5.0},
-    "smoking": {"type": "categorical", "options": [0, 1]},
-    "drinking": {"type": "categorical", "options": [0, 1]},
-}
+# Define the feature names for the new dataset
+feature_names = [
+    "Age", "BMI", "SBP", "DBP", "FPG", "Chol", "Tri", "HDL", "LDL",
+    "ALT", "BUN", "CCR", "FFPG", "smoking", "drinking"
+]
 
-# Streamlit 界面
-st.title("Diabetes Prediction Model with SHAP Visualization")
+# Streamlit user interface
+st.title("Diabetes Prediction")
 
-# 动态生成输入项
-st.header("Enter the following feature values:")
-feature_values = []
-for feature, properties in feature_ranges.items():
-    if properties["type"] == "numerical":
-        value = st.number_input(
-            label=f"{feature} ({properties['min']} - {properties['max']})",
-            min_value=float(properties["min"]),
-            max_value=float(properties["max"]),
-            value=float(properties["default"]),
-        )
-    elif properties["type"] == "categorical":
-        value = st.selectbox(
-            label=f"{feature} (Select a value)",
-            options=properties["options"],
-        )
-    feature_values.append(value)
+# Input features
+age = st.number_input("Age:", min_value=18, max_value=100, value=30)
+bmi = st.number_input("BMI:", min_value=10.0, max_value=50.0, value=24.0)
+sbp = st.number_input("SBP:", min_value=50, max_value=200, value=120)
+dbp = st.number_input("DBP:", min_value=30, max_value=120, value=80)
+fpg = st.number_input("FPG:", min_value=0.0, max_value=20.0, value=5.0)
+chol = st.number_input("Chol:", min_value=0.0, max_value=10.0, value=4.5)
+tri = st.number_input("Tri:", min_value=0.0, max_value=10.0, value=1.0)
+hdl = st.number_input("HDL:", min_value=0.0, max_value=10.0, value=1.5)
+ldl = st.number_input("LDL:", min_value=0.0, max_value=10.0, value=3.0)
+alt = st.number_input("ALT:", min_value=0.0, max_value=100.0, value=30.0)
+bun = st.number_input("BUN:", min_value=0.0, max_value=100.0, value=20.0)
+ccr = st.number_input("CCR:", min_value=0.0, max_value=100.0, value=50.0)
+ffpg = st.number_input("FFPG:", min_value=0.0, max_value=20.0, value=5.0)
+smoking = st.selectbox("smoking:", options=[0, 1])
+drinking = st.selectbox("drinking:", options=[0, 1])
 
-# 转换为模型输入格式
-features = np.array([feature_values])
+# Collect input values into a list
+feature_values = [age, bmi, sbp, dbp, fpg, chol, tri, hdl, ldl, alt, bun, ccr, ffpg, smoking, drinking]
 
-# 预测与 SHAP 可视化
+# Convert the input feature values into a DataFrame
+features_df = pd.DataFrame([feature_values], columns=feature_names)
+
 if st.button("Predict"):
-    # 模型预测
-    predicted_class = model.predict(features)[0]
-    predicted_proba = model.predict_proba(features)[0]
+    # Make prediction using the model
+    predicted_class = model.predict(features_df)[0]
+    predicted_proba = model.predict_proba(features_df)[0]
 
-    # 提取预测的类别概率
+    # Display the prediction results
+    st.write(f"**Predicted Class (0=No Diabetes, 1=Diabetes):** {predicted_class}")
+    st.write(f"**Predicted Probability:** {predicted_proba}")
+
+    # Generate advice based on the prediction
     probability = predicted_proba[predicted_class] * 100
 
-    # 显示预测结果，使用 Matplotlib 渲染指定字体
-    text = f"Based on feature values, predicted possibility of diabetes is {probability:.2f}%"
-    fig, ax = plt.subplots(figsize=(8, 1))
-    ax.text(
-        0.5, 0.5, text,
-        fontsize=16,
-        ha='center', va='center',
-        fontname='Times New Roman',
-        transform=ax.transAxes
-    )
-    ax.axis('off')
-    plt.savefig("prediction_text.png", bbox_inches='tight', dpi=300)
-    st.image("prediction_text.png")
+    if predicted_class == 0:
+        advice = (
+            f"Based on our model's prediction, you are unlikely to have diabetes."
+            f" The probability of you not having diabetes is {probability:.1f}%. "
+            "It is recommended to maintain a healthy lifestyle and continue reducing risk factors."
+        )
+    else:
+        advice = (
+            f"Based on our model's prediction, you may have diabetes."
+            f" The probability of you having diabetes is {probability:.1f}%. "
+            "It is recommended to consult a doctor for further diagnosis and treatment."
+        )
 
-    # 计算 SHAP 值
+    st.write(advice)
+
+    # Compute SHAP values
     explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
+    shap_values_Explanation = explainer.shap_values(features_df)
 
-    # 生成 SHAP 力图
-    class_index = predicted_class  # 当前预测类别
-    shap_fig = shap.force_plot(
-        explainer.expected_value[class_index],
-        shap_values[:,:,class_index],
-        pd.DataFrame([feature_values], columns=feature_ranges.keys()),
-        matplotlib=True,
-    )
-    # 保存并显示 SHAP 图
-    plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
-    st.image("shap_force_plot.png")
+    # Generate and display SHAP waterfall plot for the predicted class
+    plt.figure(figsize=(10, 5), dpi=1200)
+    shap.plots.waterfall(shap_values_Explanation[1][0], show=False, max_display=13)
 
+    # Adding details like title, axis labels, and saving the plot with clear dimensions
+    plt.title("SHAP Waterfall Plot for Predicted Class (Diabetes = 1)", fontsize=16)
+    plt.tight_layout()
+    plt.savefig("shap_waterfall_plot.png", bbox_inches='tight', dpi=1200)
+
+    # Display the SHAP waterfall plot image in Streamlit
+    st.image("shap_waterfall_plot.png", caption="SHAP Waterfall Plot Showing Feature Contributions")
+
+    # Generate SHAP summary plot for all features
+    plt.figure(figsize=(12, 6), dpi=1200)
+    shap.summary_plot(shap_values_Explanation[1], features_df, plot_type="dot", show=False)
+    
+    # Adding title and fine-tuning the layout
+    plt.title("SHAP Summary Plot of All Features", fontsize=16)
+    plt.tight_layout()
+    plt.savefig("shap_summary_plot.png", bbox_inches='tight', dpi=1200)
+
+    # Display the SHAP summary plot image in Streamlit
+    st.image("shap_summary_plot.png", caption="SHAP Summary Plot Showing Feature Importance Across Data")
