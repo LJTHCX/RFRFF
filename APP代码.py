@@ -78,7 +78,7 @@ if st.button("Predict"):
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
 
-    # 确保我们使用正确类别的 SHAP 值
+    # 获取预测类别的 SHAP 值
     shap_values_class = shap_values[predicted_class]  # 获取预测类别的 SHAP 值
 
     # 生成 SHAP 力图
@@ -92,8 +92,13 @@ if st.button("Predict"):
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_force_plot.png")
 
-    # 显示 SHAP 水波图，仅显示预测类别的图
+    # 根据预测类别绘制 SHAP 水波图
     plt.figure(figsize=(10, 5), dpi=1200)
-    shap.plots.waterfall(shap_values_class[0], show=False, max_display=13)  # 使用预测类别索引
-    plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
-    st.image("shap_plot.png")
+    if predicted_class == 0:
+        shap.plots.waterfall(shap_values_class[0], show=False, max_display=13)  # 类别0的图
+        plt.savefig("shap_plot_class_0.png", bbox_inches='tight', dpi=1200)
+        st.image("shap_plot_class_0.png")
+    elif predicted_class == 1:
+        shap.plots.waterfall(shap_values_class[0], show=False, max_display=13)  # 类别1的图
+        plt.savefig("shap_plot_class_1.png", bbox_inches='tight', dpi=1200)
+        st.image("shap_plot_class_1.png")
