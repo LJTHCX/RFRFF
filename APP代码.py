@@ -78,11 +78,13 @@ if st.button("Predict"):
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
 
+    # 确保我们使用正确类别的 SHAP 值
+    shap_values_class = shap_values[predicted_class]  # 获取预测类别的 SHAP 值
+
     # 生成 SHAP 力图
-    class_index = predicted_class  # 当前预测类别
     shap_fig = shap.force_plot(
-        explainer.expected_value[class_index],
-        shap_values[class_index][0],
+        explainer.expected_value[predicted_class],
+        shap_values_class[0],  # 获取第一个样本的 SHAP 值
         pd.DataFrame([feature_values], columns=feature_ranges.keys()),
         matplotlib=True,
     )
@@ -92,6 +94,6 @@ if st.button("Predict"):
 
     # 显示 SHAP 水波图，仅显示预测类别的图
     plt.figure(figsize=(10, 5), dpi=1200)
-    shap.plots.waterfall(shap_values[class_index][0], show=False, max_display=13)  # 使用预测类别索引
+    shap.plots.waterfall(shap_values_class[0], show=False, max_display=13)  # 使用预测类别索引
     plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_plot.png")
