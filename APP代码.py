@@ -41,50 +41,41 @@ feature_values = [age, bmi, sbp, dbp, fpg, chol, tri, hdl, ldl, alt, bun, ccr, f
 features_df = pd.DataFrame([feature_values], columns=feature_names)
 
 if st.button("Predict"):
-    # Make prediction using the model
+    # Model prediction
     predicted_class = model.predict(features_df)[0]
     predicted_proba = model.predict_proba(features_df)[0]
 
-    # Display the prediction results
-    st.write(f"**Predicted Class (0=No Diabetes, 1=Diabetes):** {predicted_class}")
-    st.write(f"**Predicted Probability:** {predicted_proba}")
-
-    # Generate advice based on the prediction
+    # Extract the predicted class probability
     probability = predicted_proba[predicted_class] * 100
 
-    if predicted_class == 0:
-        advice = (
-            f"Based on our model's prediction, you are unlikely to have diabetes."
-            f" The probability of you not having diabetes is {probability:.1f}%. "
-            "It is recommended to maintain a healthy lifestyle and continue reducing risk factors."
-        )
-    else:
-        advice = (
-            f"Based on our model's prediction, you may have diabetes."
-            f" The probability of you having diabetes is {probability:.1f}%. "
-            "It is recommended to consult a doctor for further diagnosis and treatment."
-        )
-
-    st.write(advice)
+    # Display prediction result using Matplotlib (rendered text)
+    text = f"Based on feature values, predicted possibility of diabetes is {probability:.2f}%"
+    fig, ax = plt.subplots(figsize=(8, 1))
+    ax.text(
+        0.5, 0.5, text,
+        fontsize=16,
+        ha='center', va='center',
+        fontname='Times New Roman',
+        transform=ax.transAxes
+    )
+    ax.axis('off')
+    plt.savefig("prediction_text.png", bbox_inches='tight', dpi=300)
+    st.image("prediction_text.png")
 
     # Compute SHAP values
     explainer = shap.TreeExplainer(model)
-    shap_values_Explanation = explainer.shap_values(features_df)
+    shap_values = explainer.shap_values(features_df)
 
-    # Convert shap_values_Explanation to the appropriate SHAP object
-    shap_values_obj = shap.Explanation(values=shap_values_Explanation[predicted_class], 
-                                       base_values=explainer.expected_value[predicted_class],
-                                       data=features_df.values, 
-                                       feature_names=feature_names)
+    # Generate SHAP force plot for the predicted class
+    class_index = predicted_class  # The predicted class index (0 or 1)
+    shap_fig = shap.force_plot(
+        explainer.expected_value[class_index],
+        shap_values[class_index],
+        features_df,
+        feature_names=feature_names,
+        matplotlib=True
+    )
 
-    # Display SHAP plot for predicted class
-    plt.figure(figsize=(10, 5), dpi=1200)
-
-    # Use the SHAP Explanation object for the predicted class
-    shap.plots.waterfall(shap_values_obj[0], show=False, max_display=13)
-
-    # Save the SHAP plot as an image file
-    plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
-
-    # Display the SHAP plot in the Streamlit app
-    st.image("shap_plot.png")
+    # Save and display SHAP force plot
+    plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
+    st.image("shap_force_plot.png")
