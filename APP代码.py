@@ -48,6 +48,11 @@ for feature, properties in feature_ranges.items():
             label=f"{feature} (Select a value)",
             options=properties["options"],
         )
+
+    # 确保每个特征有有效的输入，避免 None 值
+    if value is None:
+        value = properties["default"]
+
     feature_values.append(value)
 
 # 转换为模型输入格式
@@ -105,6 +110,7 @@ if st.button("Show SHAP Waterfall Plot"):
     plt.savefig("shap_waterfall_plot.png", format='png', bbox_inches='tight', dpi=1200)
     plt.tight_layout()
     st.image("shap_waterfall_plot.png")
+
 
 
 
