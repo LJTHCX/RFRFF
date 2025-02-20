@@ -92,11 +92,8 @@ if st.button("Predict"):
 
 
 
-    # Calculate SHAP values
-    explainer = shap.TreeExplainer(model)
-    shap_values_Explanation = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
     # 显示 SHAP 水波图，仅显示预测类别的图
     plt.figure(figsize=(10, 5), dpi=1200)
-    shap.plots.waterfall(shap_values_Explanation[predicted_class][0], show=False, max_display=13)  # 使用预测类别索引
+    shap.plots.waterfall(shap_values[predicted_class][0], show=False, max_display=13)  # 使用预测类别索引
     plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_plot.png")
