@@ -89,40 +89,17 @@ if st.button("Show SHAP Force Plot"):
 
 # 新增：显示SHAP瀑布图的按钮
 if st.button("Show SHAP Waterfall Plot"):
-    # 导入数据
-    df = pd.read_excel('diabetes.xlsx')
+    # 计算 SHAP 值
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
 
-    # 划分特征和目标变量
-    X = df.drop(['Diabetes'], axis=1)
-    y = df['Diabetes']
+    # 获取当前预测类别的SHAP值
+    class_index = model.predict(features)[0]  # 当前预测类别
 
-    # 划分训练集和测试集
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=df['Diabetes'])
-
-    # 使用最佳参数训练模型
-    best_params = {'n_estimators': 356, 'max_depth': 4, 'min_samples_split': 2, 'min_samples_leaf': 25, 'random_state': 42}
-
-    # 创建并训练模型
-    model_rf = RandomForestClassifier(
-        n_estimators=best_params['n_estimators'],
-        max_depth=best_params['max_depth'],
-        min_samples_split=best_params['min_samples_split'],
-        min_samples_leaf=best_params['min_samples_leaf'],
-        random_state=best_params['random_state']
-    )
-
-    model_rf.fit(X_train, y_train)
-
-    # 计算shap值为Explanation格式
-    explainer = shap.TreeExplainer(model_rf)
-    shap_values_Explanation = explainer.shap_values(X_test)
-
-    # 提取类别 0 的 SHAP 值
-    shap_values_class_0 = shap_values_Explanation[0]
-
-    # 绘制第3个样本0类别的 SHAP 瀑布图
+    # 绘制 SHAP 瀑布图
     plt.figure(figsize=(10, 5), dpi=1200)
-    shap.plots.waterfall(shap_values_class_0[2], show=False, max_display=13)
-    plt.savefig("shap_waterfall_plot.pdf", format='pdf', bbox_inches='tight')
+    shap.plots.waterfall(shap_values[class_index][0], show=False, max_display=13)
+    plt.savefig("shap_waterfall_plot.png", format='png', bbox_inches='tight', dpi=1200)
     plt.tight_layout()
-    st.image("shap_waterfall_plot.pdf")
+    st.image("shap_waterfall_plot.png")
+
