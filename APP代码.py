@@ -74,6 +74,8 @@ if st.button("Predict"):
     plt.savefig("prediction_text.png", bbox_inches='tight', dpi=300)
     st.image("prediction_text.png")
 
+# 添加一个按钮用于显示SHAP值可视化
+if st.button("Show SHAP Visualization"):
     # 计算 SHAP 值
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
@@ -86,6 +88,7 @@ if st.button("Predict"):
         pd.DataFrame([feature_values], columns=feature_ranges.keys()),
         matplotlib=True,
     )
+    
     # 保存并显示 SHAP 图
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_force_plot.png")
