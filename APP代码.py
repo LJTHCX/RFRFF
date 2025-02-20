@@ -73,9 +73,12 @@ if st.button("Predict"):
         shap_values[class_index],
         features_df,
         feature_names=feature_names,
-        matplotlib=True
+        matplotlib=False  # Set to False for multiple samples
     )
 
-    # Save and display SHAP force plot
-    plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
-    st.image("shap_force_plot.png")
+    # Save the SHAP force plot as an HTML file
+    shap_fig_html = "shap_force_plot.html"
+    shap.save_html(shap_fig_html, shap_fig)
+
+    # Display the SHAP force plot in the Streamlit app
+    st.markdown(f'<iframe src="{shap_fig_html}" width="100%" height="600px"></iframe>', unsafe_allow_html=True)
