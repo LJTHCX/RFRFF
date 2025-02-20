@@ -1,4 +1,3 @@
-下面我将给你提供一段APP代码，请你对其进行解释：
 import streamlit as st
 import joblib
 import numpy as np
