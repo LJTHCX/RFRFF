@@ -66,15 +66,27 @@ if st.button("Predict"):
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(features_df)
 
-    # Generate SHAP force plot for the predicted class
+    # Check the number of classes in the output and get the correct index
     class_index = predicted_class  # The predicted class index (0 or 1)
-    shap_fig = shap.force_plot(
-        explainer.expected_value[class_index],
-        shap_values[class_index],
-        features_df,
-        feature_names=feature_names,
-        matplotlib=False  # Set to False for multiple samples
-    )
+
+    # If only one class is predicted, we should use that class's SHAP values
+    if isinstance(shap_values, list):  # For binary classification (2 classes)
+        shap_fig = shap.force_plot(
+            explainer.expected_value[class_index],
+            shap_values[class_index],
+            features_df,
+            feature_names=feature_names,
+            matplotlib=False  # Set to False for multiple samples
+        )
+    else:
+        # For multi-class or other cases
+        shap_fig = shap.force_plot(
+            explainer.expected_value[0],  # Use the first class's expected value
+            shap_values,
+            features_df,
+            feature_names=feature_names,
+            matplotlib=False  # Set to False for multiple samples
+        )
 
     # Save the SHAP force plot as an HTML file
     shap_fig_html = "shap_force_plot.html"
