@@ -71,9 +71,15 @@ if st.button("Predict"):
     explainer = shap.TreeExplainer(model)
     shap_values_Explanation = explainer.shap_values(features_df)
 
-    # Display SHAP plot for predicted class
+    # Display SHAP force plot for predicted class 0
     plt.figure(figsize=(10, 5), dpi=1200)
-    shap.plots.waterfall(shap_values_Explanation[1][0], show=False, max_display=13)
-    plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
-    st.image("shap_plot.png")
+    shap.force_plot(
+        explainer.expected_value[0],  # Use expected value for class 0
+        shap_values_Explanation[0][0],  # SHAP values for class 0
+        features_df,
+        matplotlib=True
+    )
+    plt.savefig("shap_force_plot_class_0.png", bbox_inches='tight', dpi=1200)
+    st.image("shap_force_plot_class_0.png")
+
 
