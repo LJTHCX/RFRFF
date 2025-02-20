@@ -67,4 +67,21 @@ if st.button("Predict"):
 
     st.write(advice)
 
+    # Compute SHAP values
+    explainer = shap.TreeExplainer(model)
+    shap_values_Explanation = explainer.shap_values(features_df)
+
+    # Display SHAP plot for predicted class (use shap_values_Explanation for the correct class)
+    plt.figure(figsize=(10, 5), dpi=1200)
+
+    # Use the predicted class index (0 or 1) to select the correct SHAP values for the plot
+    shap.plots.waterfall(shap_values_Explanation[predicted_class][0], show=False, max_display=13)
+
+    # Save the SHAP plot as an image file
+    plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
+
+    # Display the SHAP plot in the Streamlit app
+    st.image("shap_plot.png")
+
+
 
