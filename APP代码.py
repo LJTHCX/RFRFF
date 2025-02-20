@@ -91,10 +91,9 @@ if st.button("Predict"):
     st.image("shap_force_plot.png")
 
 
-    
     # Compute SHAP values
     explainer = shap.TreeExplainer(model)
-    shap_values_Explanation = explainer.shap_values(feature_values)
+    shap_values_Explanation = explainer.shap_values(features)
     # Calculate SHAP values
     explainer = shap.TreeExplainer(model)
     shap_values_Explanation = explainer(feature_values)
