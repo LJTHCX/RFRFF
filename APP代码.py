@@ -87,7 +87,7 @@ if st.button("Show SHAP Force Plot"):
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_force_plot.png")
 
-#显示SHAP瀑布图的按钮
+# 新增：显示SHAP瀑布图的按钮
 if st.button("Show SHAP Waterfall Plot"):
     # 计算 SHAP 值
     explainer = shap.TreeExplainer(model)
@@ -97,9 +97,7 @@ if st.button("Show SHAP Waterfall Plot"):
     class_index = model.predict(features)[0]  # 当前预测类别
 
     # 创建 SHAP Explanation 对象
-    explanation = shap.Explanation(shap_values[class_index], 
-                                   feature_names=list(feature_ranges.keys()), 
-                                   target_names=[f"Class {class_index}"])
+    explanation = shap.Explanation(shap_values[class_index], feature_names=list(feature_ranges.keys()))
 
     # 绘制 SHAP 瀑布图
     plt.figure(figsize=(10, 5), dpi=1200)
@@ -107,5 +105,6 @@ if st.button("Show SHAP Waterfall Plot"):
     plt.savefig("shap_waterfall_plot.png", format='png', bbox_inches='tight', dpi=1200)
     plt.tight_layout()
     st.image("shap_waterfall_plot.png")
+
 
 
