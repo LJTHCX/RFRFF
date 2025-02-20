@@ -30,23 +30,60 @@ feature_ranges = {
 # Streamlit 界面
 st.title("Diabetes Prediction Model with SHAP Visualization")
 
+# 初始化按钮点击状态
+if 'show_explanation' not in st.session_state:
+    st.session_state.show_explanation = False
+
 # 添加“解释变量”按钮
 if st.button("Explain Variables"):
+    # 切换解释显示状态
+    st.session_state.show_explanation = not st.session_state.show_explanation
+
+# 根据状态显示或隐藏解释内容
+if st.session_state.show_explanation:
     st.info("""
         **Age**: Age of the person (18 to 100 years).
+    """)
+    st.info("""
         **BMI**: Body Mass Index, a measure of body fat based on height and weight.
+    """)
+    st.info("""
         **SBP**: Systolic Blood Pressure, the top number in a blood pressure reading.
+    """)
+    st.info("""
         **DBP**: Diastolic Blood Pressure, the bottom number in a blood pressure reading.
+    """)
+    st.info("""
         **FPG**: Fasting Plasma Glucose, a test for diabetes.
+    """)
+    st.info("""
         **Chol**: Total Cholesterol, a measure of all cholesterol in the blood.
+    """)
+    st.info("""
         **Tri**: Triglycerides, a type of fat found in blood.
+    """)
+    st.info("""
         **HDL**: High-Density Lipoprotein Cholesterol, "good" cholesterol.
+    """)
+    st.info("""
         **LDL**: Low-Density Lipoprotein Cholesterol, "bad" cholesterol.
+    """)
+    st.info("""
         **ALT**: Alanine Aminotransferase, an enzyme that helps metabolize proteins.
+    """)
+    st.info("""
         **BUN**: Blood Urea Nitrogen, a measure of kidney function.
+    """)
+    st.info("""
         **CCR**: Creatinine Clearance Rate, a test of kidney function.
+    """)
+    st.info("""
         **FFPG**: Fasting Free Plasma Glucose, another measure for diabetes diagnosis.
+    """)
+    st.info("""
         **Smoking**: Whether the person smokes (0 = No, 1 = Yes).
+    """)
+    st.info("""
         **Drinking**: Whether the person drinks alcohol (0 = No, 1 = Yes).
     """)
 
@@ -104,5 +141,3 @@ if st.button("Show SHAP Force Plot"):
     # 保存并显示 SHAP 图
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_force_plot.png")
-
-
