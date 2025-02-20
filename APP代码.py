@@ -88,3 +88,4 @@ if st.button("Predict"):
 
     # Display the SHAP force plot in the Streamlit app
     st.markdown(f'<iframe src="{shap_fig_html}" width="100%" height="600px"></iframe>', unsafe_allow_html=True)
+
