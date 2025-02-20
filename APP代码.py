@@ -5,10 +5,10 @@ import pandas as pd
 import shap
 import matplotlib.pyplot as plt
 
-# 加载随机森林模型
+# 加载保存的随机森林模型
 model = joblib.load('RF.pkl')
 
-# 定义特征范围和默认值
+# 特征范围定义（根据提供的特征范围和数据类型）
 feature_ranges = {
     "Age": {"type": "numerical", "min": 18, "max": 100, "default": 30},
     "BMI": {"type": "numerical", "min": 10.0, "max": 50.0, "default": 24.0},
@@ -23,11 +23,11 @@ feature_ranges = {
     "BUN": {"type": "numerical", "min": 0.0, "max": 100.0, "default": 20.0},
     "CCR": {"type": "numerical", "min": 0.0, "max": 100.0, "default": 50.0},
     "FFPG": {"type": "numerical", "min": 0.0, "max": 20.0, "default": 5.0},
-    "smoking": {"type": "categorical", "options": [1, 2, 3, 4, 5]},
-    "drinking": {"type": "categorical", "options": [1, 2, 3, 4, 5]},
+    "smoking": {"type": "categorical", "options": [0, 1]},
+    "drinking": {"type": "categorical", "options": [0, 1]},
 }
 
-# Streamlit界面
+# Streamlit 界面
 st.title("Diabetes Prediction Model with SHAP Visualization")
 
 # 动态生成输入项
@@ -60,7 +60,7 @@ if st.button("Predict"):
     # 提取预测的类别概率
     probability = predicted_proba[predicted_class] * 100
 
-    # 显示预测结果
+    # 显示预测结果，使用 Matplotlib 渲染指定字体
     text = f"Based on feature values, predicted possibility of diabetes is {probability:.2f}%"
     fig, ax = plt.subplots(figsize=(8, 1))
     ax.text(
@@ -78,11 +78,15 @@ if st.button("Predict"):
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
 
-    # 对于分类任务，使用所有类别的概率来绘制SHAP值图像
-    # SHAP值力图，基于每个类别的概率
-    fig, ax = plt.subplots(figsize=(10, 6))
-    shap.summary_plot(shap_values, pd.DataFrame([feature_values], columns=feature_ranges.keys()), plot_type="bar", show=False)
-    plt.title(f"SHAP Summary for Diabetes Prediction")
-    plt.savefig("shap_summary_plot.png", bbox_inches='tight', dpi=300)
-    st.image("shap_summary_plot.png")
+    # 生成 SHAP 力图
+    class_index = predicted_class  # 当前预测类别
+    shap_fig = shap.force_plot(
+        explainer.expected_value[class_index],
+        shap_values[:,:,class_index],
+        pd.DataFrame([feature_values], columns=feature_ranges.keys()),
+        matplotlib=True,
+    )
+    # 保存并显示 SHAP 图
+    plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
+    st.image("shap_force_plot.png")
 
