@@ -5,50 +5,62 @@ import pandas as pd
 import shap
 import matplotlib.pyplot as plt
 
-# Load the diabetes prediction model
+# 加载预测模型
 model = joblib.load('RF.pkl')
 
-# Define the feature names for the new dataset
-feature_names = [
-    "Age", "BMI", "SBP", "DBP", "FPG", "Chol", "Tri", "HDL", "LDL",
-    "ALT", "BUN", "CCR", "FFPG", "smoking", "drinking"
-]
+# 定义特征范围和类型
+feature_ranges = {
+    "Age": {"type": "numerical", "min": 18, "max": 100, "default": 30},
+    "BMI": {"type": "numerical", "min": 10.0, "max": 50.0, "default": 24.0},
+    "SBP": {"type": "numerical", "min": 50, "max": 200, "default": 120},
+    "DBP": {"type": "numerical", "min": 30, "max": 120, "default": 80},
+    "FPG": {"type": "numerical", "min": 0.0, "max": 20.0, "default": 5.0},
+    "Chol": {"type": "numerical", "min": 0.0, "max": 10.0, "default": 4.5},
+    "Tri": {"type": "numerical", "min": 0.0, "max": 10.0, "default": 1.0},
+    "HDL": {"type": "numerical", "min": 0.0, "max": 10.0, "default": 1.5},
+    "LDL": {"type": "numerical", "min": 0.0, "max": 10.0, "default": 3.0},
+    "ALT": {"type": "numerical", "min": 0.0, "max": 100.0, "default": 30.0},
+    "BUN": {"type": "numerical", "min": 0.0, "max": 100.0, "default": 20.0},
+    "CCR": {"type": "numerical", "min": 0.0, "max": 100.0, "default": 50.0},
+    "FFPG": {"type": "numerical", "min": 0.0, "max": 20.0, "default": 5.0},
+    "smoking": {"type": "categorical", "options": [0, 1]},
+    "drinking": {"type": "categorical", "options": [0, 1]},
+}
 
-# Streamlit user interface
-st.title("Diabetes Prediction")
+# Streamlit 界面
+st.title("Diabetes Prediction Model with SHAP Visualization")
 
-# Input features
-age = st.number_input("Age:", min_value=18, max_value=100, value=30)
-bmi = st.number_input("BMI:", min_value=10.0, max_value=50.0, value=24.0)
-sbp = st.number_input("SBP:", min_value=50, max_value=200, value=120)
-dbp = st.number_input("DBP:", min_value=30, max_value=120, value=80)
-fpg = st.number_input("FPG:", min_value=0.0, max_value=20.0, value=5.0)
-chol = st.number_input("Chol:", min_value=0.0, max_value=10.0, value=4.5)
-tri = st.number_input("Tri:", min_value=0.0, max_value=10.0, value=1.0)
-hdl = st.number_input("HDL:", min_value=0.0, max_value=10.0, value=1.5)
-ldl = st.number_input("LDL:", min_value=0.0, max_value=10.0, value=3.0)
-alt = st.number_input("ALT:", min_value=0.0, max_value=100.0, value=30.0)
-bun = st.number_input("BUN:", min_value=0.0, max_value=100.0, value=20.0)
-ccr = st.number_input("CCR:", min_value=0.0, max_value=100.0, value=50.0)
-ffpg = st.number_input("FFPG:", min_value=0.0, max_value=20.0, value=5.0)
-smoking = st.selectbox("smoking:", options=[0, 1])
-drinking = st.selectbox("drinking:", options=[0, 1])
+# 动态生成输入项
+st.header("Enter the following feature values:")
+feature_values = []
+for feature, properties in feature_ranges.items():
+    if properties["type"] == "numerical":
+        value = st.number_input(
+            label=f"{feature} ({properties['min']} - {properties['max']})",
+            min_value=float(properties["min"]),
+            max_value=float(properties["max"]),
+            value=float(properties["default"]),
+        )
+    elif properties["type"] == "categorical":
+        value = st.selectbox(
+            label=f"{feature} (Select a value)",
+            options=properties["options"],
+        )
+    feature_values.append(value)
 
-# Collect input values into a list
-feature_values = [age, bmi, sbp, dbp, fpg, chol, tri, hdl, ldl, alt, bun, ccr, ffpg, smoking, drinking]
+# 转换为模型输入格式
+features = np.array([feature_values])
 
-# Convert the input feature values into a DataFrame
-features_df = pd.DataFrame([feature_values], columns=feature_names)
-
+# 预测与 SHAP 可视化
 if st.button("Predict"):
-    # Model prediction
-    predicted_class = model.predict(features_df)[0]
-    predicted_proba = model.predict_proba(features_df)[0]
+    # 模型预测
+    predicted_class = model.predict(features)[0]
+    predicted_proba = model.predict_proba(features)[0]
 
-    # Extract the predicted class probability
+    # 提取预测的类别概率
     probability = predicted_proba[predicted_class] * 100
 
-    # Display prediction result using Matplotlib (rendered text)
+    # 显示预测结果，使用 Matplotlib 渲染指定字体
     text = f"Based on feature values, predicted possibility of diabetes is {probability:.2f}%"
     fig, ax = plt.subplots(figsize=(8, 1))
     ax.text(
@@ -62,30 +74,21 @@ if st.button("Predict"):
     plt.savefig("prediction_text.png", bbox_inches='tight', dpi=300)
     st.image("prediction_text.png")
 
-    # Compute SHAP values
+    # 计算 SHAP 值
     explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(features_df)
+    shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
 
-    # Check if the model is binary classification and shap_values has both classes
-    if isinstance(shap_values, list) and len(shap_values) == 2:
-        # Binary classification: shap_values is a list of arrays for each class
-        shap_fig = shap.force_plot(
-            explainer.expected_value[predicted_class],
-            shap_values[predicted_class],
-            features_df,
-            feature_names=feature_names,
-            matplotlib=False  # Set to False for interactive display
-        )
-    else:
-        # If shap_values doesn't have two elements, it means there's only one class predicted
-        # We should handle the case where only one class is predicted
-        st.write("The model prediction has only one class. No SHAP force plot available.")
-        return
+    # 生成 SHAP 力图
+    class_index = predicted_class  # 当前预测类别
+    shap_fig = shap.force_plot(
+        explainer.expected_value[class_index],
+        shap_values[class_index],
+        pd.DataFrame([feature_values], columns=feature_ranges.keys()),
+        matplotlib=True,
+    )
 
-    # Save the SHAP force plot as an HTML file
-    shap_fig_html = "shap_force_plot.html"
-    shap.save_html(shap_fig_html, shap_fig)
+    # 保存并显示 SHAP 图
+    plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
+    st.image("shap_force_plot.png")
 
-    # Display the SHAP force plot in the Streamlit app
-    st.markdown(f'<iframe src="{shap_fig_html}" width="100%" height="600px"></iframe>', unsafe_allow_html=True)
 
