@@ -69,8 +69,9 @@ if st.button("Predict"):
     # Check the number of classes in the output and get the correct index
     class_index = predicted_class  # The predicted class index (0 or 1)
 
-    # If only one class is predicted, we should use that class's SHAP values
-    if isinstance(shap_values, list):  # For binary classification (2 classes)
+    # Determine if the model is binary classification (shap_values is a list with 2 elements)
+    if isinstance(shap_values, list) and len(shap_values) == 2:
+        # Binary classification (0 or 1)
         shap_fig = shap.force_plot(
             explainer.expected_value[class_index],
             shap_values[class_index],
@@ -79,7 +80,7 @@ if st.button("Predict"):
             matplotlib=False  # Set to False for multiple samples
         )
     else:
-        # For multi-class or other cases
+        # Multi-class or other cases
         shap_fig = shap.force_plot(
             explainer.expected_value[0],  # Use the first class's expected value
             shap_values,
