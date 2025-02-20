@@ -79,7 +79,7 @@ if st.button("Show SHAP Force Plot"):
     class_index = model.predict(features)[0]  # 当前预测类别
     shap_fig = shap.force_plot(
         explainer.expected_value[class_index],
-        shap_values[:,:,class_index],
+        shap_values[class_index],
         pd.DataFrame([feature_values], columns=feature_ranges.keys()),
         matplotlib=True,
     )
