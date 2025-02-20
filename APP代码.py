@@ -60,19 +60,12 @@ if st.button("Predict"):
     # 提取预测的类别概率
     probability = predicted_proba[predicted_class] * 100
 
-    # 显示预测结果，使用 Matplotlib 渲染指定字体
-    text = f"Based on feature values, predicted possibility of diabetes is {probability:.2f}%"
-    fig, ax = plt.subplots(figsize=(8, 1))
-    ax.text(
-        0.5, 0.5, text,
-        fontsize=16,
-        ha='center', va='center',
-        fontname='Times New Roman',
-        transform=ax.transAxes
-    )
-    ax.axis('off')
-    plt.savefig("prediction_text.png", bbox_inches='tight', dpi=300)
-    st.image("prediction_text.png")
+    # 保存预测结果到 session_state
+    st.session_state.prediction = f"Based on feature values, predicted possibility of diabetes is {probability:.2f}%"
+
+# 显示预测结果为文字
+if 'prediction' in st.session_state:
+    st.write(st.session_state.prediction)
 
 # 新增：显示SHAP力图的按钮
 if st.button("Show SHAP Force Plot"):
@@ -91,4 +84,3 @@ if st.button("Show SHAP Force Plot"):
     # 保存并显示 SHAP 图
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_force_plot.png")
-
