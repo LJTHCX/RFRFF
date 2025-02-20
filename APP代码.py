@@ -66,14 +66,21 @@ if st.button("Predict"):
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(features_df)
 
-    # Since it's a binary classification, we can directly select the SHAP values for the predicted class
-    shap_fig = shap.force_plot(
-        explainer.expected_value[predicted_class],
-        shap_values[predicted_class],
-        features_df,
-        feature_names=feature_names,
-        matplotlib=False  # Set to False for interactive display
-    )
+    # Check if the model is binary classification and shap_values has both classes
+    if isinstance(shap_values, list) and len(shap_values) == 2:
+        # Binary classification: shap_values is a list of arrays for each class
+        shap_fig = shap.force_plot(
+            explainer.expected_value[predicted_class],
+            shap_values[predicted_class],
+            features_df,
+            feature_names=feature_names,
+            matplotlib=False  # Set to False for interactive display
+        )
+    else:
+        # If shap_values doesn't have two elements, it means there's only one class predicted
+        # We should handle the case where only one class is predicted
+        st.write("The model prediction has only one class. No SHAP force plot available.")
+        return
 
     # Save the SHAP force plot as an HTML file
     shap_fig_html = "shap_force_plot.html"
@@ -81,4 +88,3 @@ if st.button("Predict"):
 
     # Display the SHAP force plot in the Streamlit app
     st.markdown(f'<iframe src="{shap_fig_html}" width="100%" height="600px"></iframe>', unsafe_allow_html=True)
-
