@@ -78,17 +78,19 @@ if st.button("Predict"):
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
 
-    # 生成 SHAP 力图
+    # 生成交互式 SHAP 力图
     class_index = predicted_class  # 当前预测类别
     shap_fig = shap.force_plot(
         explainer.expected_value[class_index],
         shap_values[class_index],
         pd.DataFrame([feature_values], columns=feature_ranges.keys()),
-        matplotlib=True,
+        matplotlib=False,  # Set to False for interactive display
     )
 
     # 保存并显示 SHAP 图
-    plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
-    st.image("shap_force_plot.png")
+    shap_fig_html = "shap_force_plot.html"
+    shap.save_html(shap_fig_html, shap_fig)
 
+    # Display the SHAP force plot in the Streamlit app
+    st.markdown(f'<iframe src="{shap_fig_html}" width="100%" height="600px"></iframe>', unsafe_allow_html=True)
 
