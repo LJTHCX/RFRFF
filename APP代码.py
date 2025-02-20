@@ -89,13 +89,4 @@ if st.button("Predict"):
     # 保存并显示 SHAP 图
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_force_plot.png")
-# Calculate SHAP values
-    explainer = shap.TreeExplainer(model)
-    shap_values_Explanation = explainer(feature_values)
-
-    # Display SHAP waterfall plot only for the predicted class
-    plt.figure(figsize=(10, 5), dpi=1200)
-    shap.plots.waterfall(shap_values_Explanation[:,:,predicted_class][0], show=False, max_display=13)
-    plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
-    st.image("shap_plot.png")
 
