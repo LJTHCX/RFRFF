@@ -78,19 +78,18 @@ if st.button("Predict"):
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
 
-    # 生成交互式 SHAP 力图
-    class_index = predicted_class  # 当前预测类别
-    shap_fig = shap.force_plot(
-        explainer.expected_value[class_index],
-        shap_values[class_index],
-        pd.DataFrame([feature_values], columns=feature_ranges.keys()),
-        matplotlib=False,  # Set to False for interactive display
-    )
-
-    # 保存并显示 SHAP 图
-    shap_fig_html = "shap_force_plot.html"
-    shap.save_html(shap_fig_html, shap_fig)
-
-    # Display the SHAP force plot in the Streamlit app
-    st.markdown(f'<iframe src="{shap_fig_html}" width="100%" height="600px"></iframe>', unsafe_allow_html=True)
-
+    # 确保 SHAP 值包含两个类别
+    if isinstance(shap_values, list) and len(shap_values) == 2:
+        # 选择当前预测类别的 SHAP 值
+        shap_fig = shap.force_plot(
+            explainer.expected_value[predicted_class],
+            shap_values[predicted_class],
+            pd.DataFrame([feature_values], columns=feature_ranges.keys()),
+            matplotlib=False  # Set to False for interactive display
+        )
+        # 保存并显示 SHAP 图
+        shap_fig_html = "shap_force_plot.html"
+        shap.save_html(shap_fig_html, shap_fig)
+        st.markdown(f'<iframe src="{shap_fig_html}" width="100%" height="600px"></iframe>', unsafe_allow_html=True)
+    else:
+        st.write("SHAP values are not available for the predicted class. No SHAP force plot available.")
