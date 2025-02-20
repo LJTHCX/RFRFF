@@ -1,11 +1,10 @@
+下面我将给你提供一段APP代码，请你对其进行解释：
 import streamlit as st
 import joblib
 import numpy as np
 import pandas as pd
 import shap
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
 
 # 加载保存的随机森林模型
 model = joblib.load('RF.pkl')
@@ -48,11 +47,6 @@ for feature, properties in feature_ranges.items():
             label=f"{feature} (Select a value)",
             options=properties["options"],
         )
-
-    # 确保每个特征有有效的输入，避免 None 值
-    if value is None:
-        value = properties["default"]
-
     feature_values.append(value)
 
 # 转换为模型输入格式
@@ -84,32 +78,13 @@ if st.button("Show SHAP Force Plot"):
     class_index = model.predict(features)[0]  # 当前预测类别
     shap_fig = shap.force_plot(
         explainer.expected_value[class_index],
-        shap_values[class_index],
+        shap_values[:,:,class_index],
         pd.DataFrame([feature_values], columns=feature_ranges.keys()),
         matplotlib=True,
     )
     # 保存并显示 SHAP 图
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_force_plot.png")
-
-# 新增：显示SHAP瀑布图的按钮
-if st.button("Show SHAP Waterfall Plot"):
-    # 计算 SHAP 值
-    explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
-
-    # 获取当前预测类别的SHAP值
-    class_index = model.predict(features)[0]  # 当前预测类别
-
-    # 创建 SHAP Explanation 对象
-    explanation = shap.Explanation(shap_values[class_index], feature_names=list(feature_ranges.keys()))
-
-    # 绘制 SHAP 瀑布图
-    plt.figure(figsize=(10, 5), dpi=1200)
-    shap.plots.waterfall(explanation[0], show=False, max_display=13)
-    plt.savefig("shap_waterfall_plot.png", format='png', bbox_inches='tight', dpi=1200)
-    plt.tight_layout()
-    st.image("shap_waterfall_plot.png")
 
 
 
