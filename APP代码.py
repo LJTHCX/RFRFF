@@ -91,7 +91,7 @@ if st.button("Predict"):
     st.image("shap_force_plot.png")
     # Compute SHAP values
     explainer = shap.TreeExplainer(model)
-    shap_values_Explanation = explainer.shap_values(features_df)
+    shap_values_Explanation = explainer.shap_values(feature_values)
 
     # Generate and display SHAP waterfall plot for the predicted class
     plt.figure(figsize=(10, 5), dpi=1200)
