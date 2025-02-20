@@ -95,10 +95,10 @@ if st.button("Predict"):
     # 根据预测类别绘制 SHAP 水波图
     plt.figure(figsize=(10, 5), dpi=1200)
     if predicted_class == 0:
-        shap.plots.waterfall(shap_values_class[0], show=False, max_display=13)  # 类别0的图
+        shap.plots.waterfall(shap_values_class[0], show=False, max_display=15)  # 类别0的图
         plt.savefig("shap_plot_class_0.png", bbox_inches='tight', dpi=1200)
         st.image("shap_plot_class_0.png")
     elif predicted_class == 1:
-        shap.plots.waterfall(shap_values_class[0], show=False, max_display=13)  # 类别1的图
+        shap.plots.waterfall(shap_values_class[0], show=False, max_display=15)  # 类别1的图
         plt.savefig("shap_plot_class_1.png", bbox_inches='tight', dpi=1200)
         st.image("shap_plot_class_1.png")
