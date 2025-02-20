@@ -87,5 +87,3 @@ if st.button("Show SHAP Force Plot"):
     st.image("shap_force_plot.png")
 
 
-
-
