@@ -76,13 +76,13 @@ if st.button("Predict"):
 
     # 计算 SHAP 值
     explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
+    shap_values_Explanation = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
 
     # 生成 SHAP 力图
     class_index = predicted_class  # 当前预测类别
     shap_fig = shap.force_plot(
         explainer.expected_value[class_index],
-        shap_values[:,:,class_index],
+        shap_values_Explanation[class_index],
         pd.DataFrame([feature_values], columns=feature_ranges.keys()),
         matplotlib=True,
     )
@@ -90,3 +90,8 @@ if st.button("Predict"):
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_force_plot.png")
 
+    # 生成 SHAP 水滴图，仅显示当前预测类别的 SHAP 值
+    plt.figure(figsize=(10, 5), dpi=1200)
+    shap.plots.waterfall(shap_values_Explanation[class_index][0], show=False, max_display=13)
+    plt.savefig("shap_waterfall_plot.png", bbox_inches='tight', dpi=1200)
+    st.image("shap_waterfall_plot.png")
