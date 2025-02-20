@@ -30,6 +30,26 @@ feature_ranges = {
 # Streamlit 界面
 st.title("Diabetes Prediction Model with SHAP Visualization")
 
+# 添加“解释变量”按钮
+if st.button("Explain Variables"):
+    st.info("""
+        **Age**: Age of the person (18 to 100 years).
+        **BMI**: Body Mass Index, a measure of body fat based on height and weight.
+        **SBP**: Systolic Blood Pressure, the top number in a blood pressure reading.
+        **DBP**: Diastolic Blood Pressure, the bottom number in a blood pressure reading.
+        **FPG**: Fasting Plasma Glucose, a test for diabetes.
+        **Chol**: Total Cholesterol, a measure of all cholesterol in the blood.
+        **Tri**: Triglycerides, a type of fat found in blood.
+        **HDL**: High-Density Lipoprotein Cholesterol, "good" cholesterol.
+        **LDL**: Low-Density Lipoprotein Cholesterol, "bad" cholesterol.
+        **ALT**: Alanine Aminotransferase, an enzyme that helps metabolize proteins.
+        **BUN**: Blood Urea Nitrogen, a measure of kidney function.
+        **CCR**: Creatinine Clearance Rate, a test of kidney function.
+        **FFPG**: Fasting Free Plasma Glucose, another measure for diabetes diagnosis.
+        **Smoking**: Whether the person smokes (0 = No, 1 = Yes).
+        **Drinking**: Whether the person drinks alcohol (0 = No, 1 = Yes).
+    """)
+
 # 动态生成输入项
 st.header("Enter the following feature values:")
 feature_values = []
