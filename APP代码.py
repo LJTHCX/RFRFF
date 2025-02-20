@@ -93,6 +93,10 @@ if st.button("Predict"):
     explainer = shap.TreeExplainer(model)
     shap_values_Explanation = explainer.shap_values(feature_values)
 
+       # Compute SHAP values
+    explainer = shap.TreeExplainer(model)
+    shap_values_Explanation = explainer.shap_values(features_df)
+
     # Generate and display SHAP waterfall plot for the predicted class
     plt.figure(figsize=(10, 5), dpi=1200)
     shap.plots.waterfall(shap_values_Explanation[1][0], show=False, max_display=13)
@@ -107,7 +111,7 @@ if st.button("Predict"):
 
     # Generate SHAP summary plot for all features
     plt.figure(figsize=(12, 6), dpi=1200)
-    shap.summary_plot(shap_values_Explanation[1], features_df, plot_type="dot", show=False)
+    shap.summary_plot(shap_values_Explanation[1], features_df.values, plot_type="dot", show=False)
     
     # Adding title and fine-tuning the layout
     plt.title("SHAP Summary Plot of All Features", fontsize=16)
