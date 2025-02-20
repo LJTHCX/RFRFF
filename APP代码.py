@@ -92,31 +92,20 @@ if st.button("Predict"):
     # Compute SHAP values
     explainer = shap.TreeExplainer(model)
     shap_values_Explanation = explainer.shap_values(feature_values)
+    # Compute SHAP values
+explainer = shap.TreeExplainer(model)
+shap_values_Explanation = explainer.shap_values(pd.DataFrame([feature_values], columns=feature_ranges.keys()))
 
-       # Compute SHAP values
-    explainer = shap.TreeExplainer(model)
-    shap_values_Explanation = explainer.shap_values(features_df)
+# Display SHAP plot for predicted class
+plt.figure(figsize=(10, 5), dpi=1200)
+# 选择预测类别的SHAP值进行绘图
+shap.plots.waterfall(shap_values_Explanation[0][0], show=False, max_display=13)  # 使用索引[0][0]以匹配预测类别
+plt.savefig("shap_plot.png", bbox_inches='tight', dpi=1200)
 
-    # Generate and display SHAP waterfall plot for the predicted class
-    plt.figure(figsize=(10, 5), dpi=1200)
-    shap.plots.waterfall(shap_values_Explanation[1][0], show=False, max_display=13)
+# 显示SHAP图
+st.image("shap_plot.png")
 
-    # Adding details like title, axis labels, and saving the plot with clear dimensions
-    plt.title("SHAP Waterfall Plot for Predicted Class (Diabetes = 1)", fontsize=16)
-    plt.tight_layout()
-    plt.savefig("shap_waterfall_plot.png", bbox_inches='tight', dpi=1200)
 
-    # Display the SHAP waterfall plot image in Streamlit
-    st.image("shap_waterfall_plot.png", caption="SHAP Waterfall Plot Showing Feature Contributions")
 
-    # Generate SHAP summary plot for all features
-    plt.figure(figsize=(12, 6), dpi=1200)
-    shap.summary_plot(shap_values_Explanation[1], features_df.values, plot_type="dot", show=False)
-    
-    # Adding title and fine-tuning the layout
-    plt.title("SHAP Summary Plot of All Features", fontsize=16)
-    plt.tight_layout()
-    plt.savefig("shap_summary_plot.png", bbox_inches='tight', dpi=1200)
 
-    # Display the SHAP summary plot image in Streamlit
-    st.image("shap_summary_plot.png", caption="SHAP Summary Plot Showing Feature Importance Across Data")
+
